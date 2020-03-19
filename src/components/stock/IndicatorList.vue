@@ -39,7 +39,7 @@
       <i-col span="24" style="height: 15rem;overflow:auto;background-color: #ffffff;padding: .5rem">
         <ul class="index" v-if="state.activeName === '1-1'">
           <li
-            :id="state.indexClass.number"
+            :id="indexClass.number"
             v-for="indexClass in state.indexs['price']"
             class="price-index"
             :key="indexClass.number"
@@ -371,10 +371,10 @@ export default {
       default: false
     }
   },
-  setup() {
+  setup(props, { root }) {
     const state = reactive({
       activeName: "1-1",
-      myModels: state.$store.state.myModels,
+      myModels: root.$store.state.myModels,
       indexs: createModelIndexs,
       indicators: MY_MODEL_INDEXS
     });
@@ -383,8 +383,8 @@ export default {
       //        this.$emit('selectActiveName', name);
     };
     const selectIndex = indicatorId => {
-      state.$store.commit("SELECT_INDICATOR", {
-        indicators: this.indicators,
+      root.$store.commit("SELECT_INDICATOR", {
+        indicators: state.indicators,
         indicatorId: indicatorId
       });
     };
@@ -392,13 +392,13 @@ export default {
       //        标识出出市指标
       let temp = indicatorId.replace("A", sell);
       //        触发vuex 选择指标
-      state.$store.commit("SELECT_INDICATOR", {
-        indicators: this.indicators,
+      root.$store.commit("SELECT_INDICATOR", {
+        indicators: state.indicators,
         indicatorId: temp
       });
     };
     const slectModelOutMarket = index => {
-      state.$store.commit("SELECTMODEL", {
+      root.$store.commit("SELECTMODEL", {
         modelIndex: index,
         index: index,
         number: "MODEL" + index,
@@ -406,7 +406,7 @@ export default {
       });
     };
     const selectModelWindCtrl = index => {
-      state.$store.commit("SELECTMODEL", {
+      root.$store.commit("SELECTMODEL", {
         modelIndex: index,
         index: index,
         number: "MODEL" + index,
@@ -414,7 +414,7 @@ export default {
       });
     };
     const selectModel = index => {
-      state.$store.commit("SELECTMODEL", {
+      root.$store.commit("SELECTMODEL", {
         modelIndex: index,
         index: index,
         number: "MODEL" + index,
@@ -428,7 +428,7 @@ export default {
       selectIndexSell,
       slectModelOutMarket,
       selectModelWindCtrl,
-      selectModel,
+      selectModel
     };
   }
 };
