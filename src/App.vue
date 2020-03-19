@@ -1,19 +1,21 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <qt-header></qt-header>
+    <router-view></router-view>
+    <qt-footer></qt-footer>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import QtHeader from "./components/portal/QtHeader";
+import QtFooter from "./components/portal/QtFooter";
+// import { provideRoute } from "./router";
 export default {
-  name: 'App',
   components: {
-    HelloWorld
+    QtHeader,
+    QtFooter
   }
-}
+};
 </script>
 
 <style>
