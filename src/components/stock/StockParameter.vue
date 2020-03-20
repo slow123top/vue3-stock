@@ -2,6 +2,107 @@
   <div>
     <!--取消智能回测-->
     <!--提示扣点操作-->
+    <Modal v-model="state.modal" :mask-closable="false" :closable="false" width="360">
+      <div slot="header">
+        <Spin size="large">
+          <Icon
+            type="load-c"
+            size="18"
+            class="demo-spin-icon-load"
+            style="line-height: 2rem;border-radius: 20px"
+          ></Icon>
+        </Spin>
+      </div>
+      <div style="font-size: 1rem;color: #000;text-align: center">{{state.runMessage}}</div>
+      <div slot="footer" style="font-size: 1rem">
+        <Button size="large" type="error" long v-if="!state.isRunning" @click="cancelTest">取消回测</Button>
+        <!--<Button size="large" type="error" long @click="cancelTest">取消回测</Button>-->
+      </div>
+    </Modal>
+    <!--取消智能回测-->
+    <Modal v-model="state.geneticWaitingModal" :mask-closable="false" :closable="false" width="360">
+      <div slot="header">
+        <Spin size="large">
+          <Icon
+            type="load-c"
+            size="18"
+            class="demo-spin-icon-load"
+            style="line-height: 2rem;border-radius: 20px"
+          ></Icon>
+        </Spin>
+      </div>
+      <div style="font-size: 1rem;color: #000;text-align: center">正在为您获取计算资源，请耐心等待...</div>
+      <div slot="footer" style="font-size: 1rem">
+        <Button size="large" type="error" long @click="cancelGeneticTest">取消智能回测</Button>
+        <!--<Button size="large" type="error" long @click="cancelTest">取消回测</Button>-->
+      </div>
+    </Modal>
+    <!--提示扣点操作-->
+    <Modal
+      :mask-closable="false"
+      :closable="false"
+      v-model="state.modalRedPoint"
+      title="提示"
+      @on-cancel="cancelRedPoint"
+      @on-ok="redPoint"
+      width="500"
+    >
+      <p style="font-size: 1rem">
+        您还没有
+        <router-link to="/personalInfo/buycard" style="font-weight: bold;">购买</router-link>此次回测区间的回测卡,您将消费
+        <span style="color: #ff0000;font-weight: bold">{{state.needPoints}}</span>点数来完成本次回测,是否继续?
+      </p>
+      <!--<p>您没有<router-link to="/buycard">购买</router-link>此回测区间的回测卡,且您的点数已不足,是否继续?</p>-->
+    </Modal>
+    <Modal v-model="state.modalNoPoint" :mask-closable="false" width="500">
+      <div slot="header">提示</div>
+      <p style="font-size: 1rem;">
+        您没有本次回测区间的回测卡，请
+        <router-link to="/personalInfo/buycard">购买回测卡</router-link>
+      </p>
+      <p style="font-size: 1rem;">
+        本次回测需要
+        <span style="color: #ff0000;font-weight: bold">{{state.needPoints}}</span>点数，您的点数已不足，请
+        <router-link to="/personalInfo/recharge">充值</router-link>
+      </p>
+      <div slot="footer" style="font-size: 1rem"></div>
+    </Modal>
+    <Modal :mask-closable="false" v-model="state.geneticModal" width="600">
+      <p slot="header" style="text-align:center">
+        <span>请选择智能回测等级</span>
+      </p>
+      <Row
+        type="flex"
+        justify="center"
+        style="font-size: 0.875rem;text-align: center;color: #ff0000"
+      >
+        <i-col span="10">
+          <RadioGroup v-model="state.geneticLevel" type="button" @change="changeGeneticLevel">
+            <Badge :count="state.primaryTimes">
+              <Radio label="0">初级</Radio>
+            </Badge>
+            <Badge :count="state.intermediateTimes">
+              <Radio label="1">中级</Radio>
+            </Badge>
+            <Badge :count="state.advancedTimes">
+              <Radio label="2">高级</Radio>
+            </Badge>
+          </RadioGroup>
+        </i-col>
+        <i-col span="20" style="text-align: center">
+          <p v-html="state.geneticMessage"></p>
+        </i-col>
+      </Row>
+      <div slot="footer">
+        <Button
+          type="primary"
+          size="large"
+          :loading="state.geneticLoading"
+          :disabled="state.geneticPointInsuff"
+          @click="okGeneticTest"
+        >确定</Button>
+      </div>
+    </Modal>
     <Row type="flex" justify="start" :gutter="16" style="width: 100%">
       <i-col
         span="24"
@@ -22,12 +123,12 @@
             <i-col span="21" style="border-right:1px solid">
               <Row type="flex" justify="center" style="border-bottom:1px solid;height:2rem">
                 <i-col span="8">
-                  <Radio-group v-model="state.andOrNot" @on-change="changeAndOrNot">
+                  <RadioGroup v-model="state.andOrNot" @on-change="changeAndOrNot">
                     <Radio label="and" :disabled="state.isOneA">并且</Radio>
                     <Radio label="or" :disabled="state.isOneA">或者</Radio>
                     <Radio label="not" :disabled="state.isOneA">依次剔除掉</Radio>
                     <Radio label="customize" :disabled="state.isOneA">自定义</Radio>
-                  </Radio-group>
+                  </RadioGroup>
                   <Poptip placement="right">
                     <Icon type="information-circled" :size="25" style="cursor: pointer"></Icon>
                     <div class="api" slot="content" style="font-size:0.875rem;">
@@ -71,14 +172,14 @@
                   <Poptip placement="right" v-if="!item.className">
                     <Button
                       shape="circle"
-                      icon="help"
+                      icon="md-help-circle"
                       size="small"
                       style="background-color: #55595c;color: #fff"
                       @click="getIndexInfo(indexs)"
                     ></Button>
                     <div class="api" slot="content" style="font-size:0.8rem">
                       <ul>
-                        <li v-for="(info,index) in state.modelInfo" :key="index">{{info}}</li>
+                        <li v-for="(info,index) in state.modelInfo" :key="info+index">{{info}}</li>
                       </ul>
                     </div>
                   </Poptip>
@@ -115,19 +216,28 @@
                     v-for="(select,index) in item.selects"
                     :prop="'selectedIndexs.'+indexs+'.selects.'+index+'.value'"
                     :label-width="5"
-                    :key="index"
+                    :key="'selectedIndexs.'+indexs+'.selects.'+index+'.value'"
                     style="float: left;margin: 0"
                   >
+                    <Tooltip :content="select.label" placement="left">
+                      <i-select v-model="select.value" filterable style="width:15rem">
+                        <i-option
+                          v-for="(option,indexss) in select.optionList"
+                          :value="option.value"
+                          :key="indexss"
+                        >{{ option.label }}</i-option>
+                      </i-select>
+                    </Tooltip>
                     <Button
                       v-if="!select.locked"
                       size="small"
-                      icon="ios-unlocked-outline"
+                      icon="ios-unlock-outline"
                       @click="lockPara(indexs,index,'selects')"
                     ></Button>
                     <Button
                       v-else
                       size="small"
-                      icon="locked"
+                      icon="ios-lock"
                       @click="unlockPara(indexs,index,'selects')"
                     ></Button>
                   </Form-item>
@@ -136,17 +246,41 @@
                     :prop="'selectedIndexs.'+indexs+'.params.'+index+'.value'"
                     :label-width="5"
                     :rules="param.validator"
-                    :key="index"
+                    :key="'selectedIndexs.'+indexs+'.params.'+index+'.value'"
                     style="float: left;margin: 0;font-size:1rem"
                     :show-message="param.showMessage"
                   >
+                    <Tooltip :content="param.label" placement="left">
+                      <i-input
+                        type="text"
+                        v-model="param.value"
+                        style="width: 5rem;padding: 0;text-align: center;"
+                        @on-blur="getParentIndex(indexs,index)"
+                      >
+                        <Button
+                          v-if="!param.locked"
+                          slot="append"
+                          type="primary"
+                          size="small"
+                          icon="ios-unlock-outline"
+                          @click="lockPara(indexs,index,'params')"
+                        ></Button>
+                        <Button
+                          v-else
+                          slot="append"
+                          size="small"
+                          icon="ios-lock"
+                          @click="unlockPara(indexs,index,'params')"
+                        ></Button>
+                      </i-input>
+                    </Tooltip>
                   </Form-item>
                   <Form-item
                     v-for="(select_1,index) in item.select1"
                     :prop="'selectedIndexs.'+indexs+'.select1.'+index+'.value'"
                     :label-width="5"
                     :rules="select_1.validator"
-                    :key="index"
+                    :key="'selectedIndexs.'+indexs+'.select1.'+index+'.value'"
                     :show-message="select_1.showMessage"
                     style="float: left;margin: 0"
                   >
@@ -167,17 +301,41 @@
                     :prop="'selectedIndexs.'+indexs+'.params2.'+index+'.value'"
                     :label-width="5"
                     :rules="param_2.validator"
-                    :key="index"
+                    :key="'selectedIndexs.'+indexs+'.params2.'+index+'.value'"
                     :show-message="param_2.showMessage"
                     style="float: left;margin: 0"
                   >
+                    <Tooltip :content="param_2.label" placement="left">
+                      <i-input
+                        type="text"
+                        v-model="param_2.value"
+                        style="width: 5rem;padding: 0;text-align: center"
+                        @on-blur="getParentIndex(indexs,index)"
+                      >
+                        <Button
+                          v-if="!param_2.locked"
+                          slot="append"
+                          type="primary"
+                          size="small"
+                          icon="ios-unlock-outline"
+                          @click="lockPara(indexs,index,'params2')"
+                        ></Button>
+                        <Button
+                          v-else
+                          slot="append"
+                          size="small"
+                          icon="ios-lock"
+                          @click="unlockPara(indexs,index,'params2')"
+                        ></Button>
+                      </i-input>
+                    </Tooltip>
                   </Form-item>
                   <Form-item
                     v-for="(select_2,index) in item.select2"
                     :prop="'selectedIndexs.'+indexs+'.select2.'+index+'.value'"
                     :label-width="5"
                     :rules="select_2.validator"
-                    :key="index"
+                    :key="'selectedIndexs.'+indexs+'.select2.'+index+'.value'"
                     :show-message="select_2.showMessage"
                     style="float: left;margin: 0"
                   >
@@ -207,13 +365,13 @@
                     <Button
                       v-if="!radio.locked"
                       size="small"
-                      icon="ios-unlocked-outline"
+                      icon="ios-unlock-outline"
                       @click="lockPara(indexs,index,'radios')"
                     ></Button>
                     <Button
                       v-else
                       size="small"
-                      icon="locked"
+                      icon="ios-lock"
                       @click="unlockPara(indexs,index,'radios')"
                     ></Button>
                   </Form-item>
@@ -223,34 +381,56 @@
                     shape="circle"
                     size="large"
                     style="float: right"
-                    icon="close"
+                    icon="ios-trash"
                     @click="handleRemove(indexs)"
                   ></Button>
+                  <Tooltip
+                    v-if="(!item.className&&!item.locked)||(item.className&&!item.params.length&&!item.radios.length&&!item.locked)"
+                    class="item"
+                    content="该锁定仅用于智能回测锁定指标参数"
+                    placement="top"
+                    style="float: right"
+                  >
+                    <i-button
+                      type="text"
+                      shape="circle"
+                      icon="ios-unlock-outline"
+                      @click="lockIndicator(indexs)"
+                      style="color: #000000"
+                    ></i-button>
+                  </Tooltip>
+                  <i-button
+                    v-if="(item.className===''&&item.locked)||(item.className&&!item.params.length&&!item.radios.length&&item.locked)"
+                    type="text"
+                    icon="ios-lock"
+                    style="float: right;color: #000000"
+                    @click="unlockIndicator(indexs)"
+                  ></i-button>
                 </li>
               </ul>
               <ul style="border-top: 1px solid;padding: .5rem">
                 <li v-if="state.intoMarketList.length" class="symbol-ship">
-                  <Form-item
+                  <FormItem
                     label="入市指标及其关系："
                     prop="andOrNotIntoMarketLeft"
                     :label-width="150"
                     :rules="state.andOrNotIntoMarketLeftValidate"
                   >
-                    <i-input
+                    <Input
                       type="text"
                       style="width: 3rem"
                       v-model="state.formValidate.andOrNotIntoMarketLeft"
                       :disabled="!state.isCustomise"
                       @on-blur="intoMarketErrorLogo"
-                    ></i-input>
-                  </Form-item>
+                    />
+                  </FormItem>
                   <Form-item
                     v-for="(intoMarket,index) in state.formValidate.intoMarketListTemp"
                     :label-width="60"
                     :prop="'intoMarketListTemp.'+index+'.nextRelationship'"
                     :rules="state.andOrNotIntoMarketMiddleValidate"
                     :label="intoMarket.selectModelClass === 'intoMarket'?intoMarket.number:intoMarket.className"
-                    :key="index"
+                    :key="'intoMarket'+index"
                   >
                     <i-input
                       v-if="index !== state.intoMarketList.length-1"
@@ -388,11 +568,7 @@
                 :rules="state.controllerValidator.modelName"
               >
                 <Tooltip content="模型名称,长度最大为20" placement="left">
-                  <i-input
-                    v-model="state.modelName"
-                    placeholder="模型名称"
-                    :maxlength="20"
-                  ></i-input>
+                  <i-input v-model="state.modelName" placeholder="模型名称" :maxlength="20"></i-input>
                 </Tooltip>
               </Form-item>
               <Form-item prop="controller.backStart" style="margin-bottom: 1rem" :label-width="10">
@@ -409,10 +585,7 @@
                 </Tooltip>
               </Form-item>
               <Form-item prop="controller.backEnd" style="margin-bottom: 1rem" :label-width="10">
-                <Tooltip
-                  :content="'回测终点 （最晚到 ' +state.endTime+' 结束）'"
-                  placement="left"
-                >
+                <Tooltip :content="'回测终点 （最晚到 ' +state.endTime+' 结束）'" placement="left">
                   <Date-picker
                     v-model="state.backEnd"
                     :editable="false"
@@ -514,6 +687,56 @@
                 <!--<Button type="primary" size="large" :disabled="canDetailReport" @click="detailReport">详细报告</Button>-->
               </Button-group>
             </i-col>
+            <i-col span="7">
+              <Form-item style="margin-bottom: .5rem">
+                <Poptip placement="bottom" title="单次回测说明" width="600" trigger="hover">
+                  <Button
+                    type="success"
+                    size="large"
+                    :disabled="!state.canRun"
+                    @click="run('formValidate')"
+                    style="font-size:1rem"
+                  >单次回测</Button>
+                  <div class="api" style="font-size:0.875rem" slot="content">
+                    <p>回测区间（回测起点与回测终点的时间差）在1年以内，既不会使用回测卡也不消费点数。</p>
+                    <p>回测区间超过1年，将使用回测卡或者消费点数，只选择其中一种计费。</p>
+                    <p>
+                      <span style="font-weight: bold">使用回测卡说明：</span>回测区间不超过回测卡允许的时间范围。比如单次5年回测卡，回测区间不超过5年可以使用，此时将不再消费点数。
+                    </p>
+                    <p>
+                      <span style="font-weight: bold">消费点数说明：</span>消费点数等于回测区间的上取整年数，比如回测区间是2年，则消费2个点数；回测区间是3年多且不超过4年，则消费4个点数。
+                    </p>
+                  </div>
+                </Poptip>
+              </Form-item>
+            </i-col>
+            <!--智能回测隐藏-->
+            <i-col span="7">
+              <Form-item style="margin-bottom: .5rem">
+                <Poptip
+                  placement="bottom"
+                  title="智能回测说明"
+                  width="600"
+                  trigger="hover"
+                >
+                  <Button
+                    type="success"
+                    size="large"
+                    @click="geneticTest"
+                    style="font-size:1rem"
+                  >智能回测</Button>
+                  <div class="api" style="font-size:0.875rem" slot="content">
+                    <p>若您尚未购买回测卡，您每天都能免点数执行3次初级智能回测，该次数不会累加至第二天；</p>
+                    <p>若您购买了单次回测5年卡，在回测卡有效期内，您每天都能免点数执行5次初级智能回测、1次中级智能回测，该次数不会累加至第二天；</p>
+                    <p>若您购买了单次回测10年卡，在回测卡有效期内，您每天都能免点数执行10次初级智能回测、3次中级智能回测，该次数不会累加至第二天。</p>
+                    <p>
+                      <router-link target="_blank" to="/help/geneticdoc">更多详情>></router-link>
+                    </p>
+                  </div>
+                </Poptip>
+                
+              </Form-item>
+            </i-col>
           </Row>
         </i-form>
       </i-col>
@@ -537,6 +760,7 @@ import {
 import { createModelIndexs, MY_MODEL_INDEXS } from "../../service/indexinfo";
 //  导入生成模型信息函数
 import {
+  combineIndicator,
   resolveIndicator,
   classifyIndicator,
   indicatorToDes
@@ -556,11 +780,11 @@ import { computed, reactive } from "@vue/composition-api";
 export default {
   setup(props, { root }) {
     const state = reactive({
-      selectedIndexs:root.$store.state.selectedIndexs,
-      modelName:root.$store.state.controller.modelName,
-      backStart:root.$store.state.controller.backStart,
-      endTime:root.$store.state.model,
-      backEnd:root.$store.state.controller.backEnd,
+      selectedIndexs: root.$store.state.selectedIndexs,
+      modelName: root.$store.state.controller.modelName,
+      backStart: root.$store.state.controller.backStart,
+      endTime: root.$store.state.model,
+      backEnd: root.$store.state.controller.backEnd,
       userType: root.$store.state.user.userType,
       andOrNot: root.$store.state.andOrNot,
       geneticWaitingModal: false,
@@ -673,10 +897,8 @@ export default {
       andOrNotSymbolIntoMarket: "&",
       andOrNotIntoMarketLeft: "",
       andOrNotIntoMarketLeftValidate: [],
-      andOrNotIntoMarketMiddleValidate: [
-      ],
-      andOrNotIntoMarketRightValidate: [
-      ],
+      andOrNotIntoMarketMiddleValidate: [],
+      andOrNotIntoMarketRightValidate: [],
       andOrNotSymbolOutMarket: "&",
       andOrNotSymbolWindCtrl: "&",
       loading: false,
@@ -686,13 +908,11 @@ export default {
         outMarketListTemp: [],
         windCtrlListTemp: [],
         secondListTemp: [],
-        andOrNotIntoMarketLeft:
-          root.$store.state.symbol.andOrNotIntoMarketLeft,
+        andOrNotIntoMarketLeft: root.$store.state.symbol.andOrNotIntoMarketLeft,
         andOrNotIntoMarketRight:
           root.$store.state.symbol.andOrNotIntoMarketRight,
         andOrNotOutMarketLeft: root.$store.state.symbol.andOrNotOutMarketLeft,
-        andOrNotOutMarketRight:
-          root.$store.state.symbol.andOrNotOutMarketRight,
+        andOrNotOutMarketRight: root.$store.state.symbol.andOrNotOutMarketRight,
         andOrNotWindCtrlLeft: root.$store.state.symbol.andOrNotWindCtrlLeft,
         andOrNotWindCtrlRight: root.$store.state.symbol.andOrNotWindCtrlRight,
         currentInputIndex: root.$store.state.currentInputIndex,
@@ -777,6 +997,7 @@ export default {
         }
         //        let temp1 = JSON.parse(JSON.stringify(temp));
         state.formValidate.intoMarketListTemp = temp;
+        console.log(temp);
         return temp;
       }),
 
@@ -858,7 +1079,7 @@ export default {
               j++
             ) {
               canRun =
-                canRun * root.formValidate.selectedIndexs[i].params[j].canRun;
+                canRun * state.formValidate.selectedIndexs[i].params[j].canRun;
             }
           }
           return canRun * controllerCanRun;
@@ -980,9 +1201,7 @@ export default {
     const select = name => {
       state.activeName = name;
     };
-    const selectIndex = () => {
-     
-    };
+    const selectIndex = () => {};
     //修改回测日期触发
     const changeStartDate = date => {
       let start = new Date(date).getTime();
@@ -1131,61 +1350,60 @@ export default {
       // });
     };
     const geneticTest = () => {
-      // const that = state;
-      // const hasA = that.formValidate.selectedIndexs.some(function(item) {
-      //   return item.className.indexOf("A") !== -1;
-      // });
-      // const hasB = that.formValidate.selectedIndexs.some(function(item) {
-      //   return item.className.indexOf("B") !== -1;
-      // });
-      // const hasM = that.formValidate.selectedIndexs.some(function(item) {
-      //   return item.className === "";
-      // });
-      // if (!hasA && !hasM) {
-      //   //            如果模型数量大于1的话
-      //   that.$message.warning("请选择选股指标或者我的模型");
-      // } else if (!hasB) {
-      //   that.$message.warning("请选择二次筛选指标");
-      // } else {
-      //   let modelPara = combineIndicator(
-      //     that.formValidate,
-      //     that.$store.state.controller
-      //   );
-      //   if (modelPara.split(/A|B|C/).length - 1 > 60) {
-      //     //                  若智能回测的指标个数超过20个，报错
-      //     that.$message.error("您所选的指标过多，无法回测");
-      //   } else {
-      //     //               填写回测次数
-      //     let intoMarketStr = checkStr(
-      //       state.formValidate.andOrNotIntoMarketLeft,
-      //       state.formValidate.andOrNotIntoMarketRight,
-      //       state.formValidate.intoMarketListTemp
-      //     );
-      //     let outMarketStr = checkStr(
-      //       state.formValidate.andOrNotOutMarketLeft,
-      //       state.formValidate.andOrNotOutMarketRight,
-      //       state.formValidate.outMarketListTemp
-      //     );
-      //     let windCtrlStr = checkStr(
-      //       state.formValidate.andOrNotWindCtrlLeft,
-      //       state.formValidate.andOrNotWindCtrlRight,
-      //       state.formValidate.windCtrlListTemp
-      //     );
-      //     if (!isBracketBalance(intoMarketStr)) {
-      //       state.intoMarketCanRun = 0;
-      //     } else if (!isBracketBalance(outMarketStr)) {
-      //       state.outMarketCanRun = 0;
-      //     } else if (!isBracketBalance(windCtrlStr)) {
-      //       state.windCtrlCanRun = 0;
-      //     } else {
-      //       state.intoMarketCanRun = 1;
-      //       state.outMarketCanRun = 1;
-      //       state.windCtrlCanRun = 1;
-      //       that.getGeneticTimes();
-      //       that.geneticModal = true;
-      //     }
-      //   }
-      // }
+      const hasA = state.formValidate.selectedIndexs.some(function(item) {
+        return item.className.indexOf("A") !== -1;
+      });
+      const hasB = state.formValidate.selectedIndexs.some(function(item) {
+        return item.className.indexOf("B") !== -1;
+      });
+      const hasM = state.formValidate.selectedIndexs.some(function(item) {
+        return item.className === "";
+      });
+      if (!hasA && !hasM) {
+        //            如果模型数量大于1的话
+        // that.$message.warning("请选择选股指标或者我的模型");
+      } else if (!hasB) {
+        // that.$message.warning("请选择二次筛选指标");
+      } else {
+        let modelPara = combineIndicator(
+          state.formValidate,
+          root.$store.state.controller
+        );
+        if (modelPara.split(/A|B|C/).length - 1 > 60) {
+          //                  若智能回测的指标个数超过20个，报错
+          // that.$message.error("您所选的指标过多，无法回测");
+        } else {
+          //               填写回测次数
+          let intoMarketStr = checkStr(
+            state.formValidate.andOrNotIntoMarketLeft,
+            state.formValidate.andOrNotIntoMarketRight,
+            state.formValidate.intoMarketListTemp
+          );
+          let outMarketStr = checkStr(
+            state.formValidate.andOrNotOutMarketLeft,
+            state.formValidate.andOrNotOutMarketRight,
+            state.formValidate.outMarketListTemp
+          );
+          let windCtrlStr = checkStr(
+            state.formValidate.andOrNotWindCtrlLeft,
+            state.formValidate.andOrNotWindCtrlRight,
+            state.formValidate.windCtrlListTemp
+          );
+          if (!isBracketBalance(intoMarketStr)) {
+            state.intoMarketCanRun = 0;
+          } else if (!isBracketBalance(outMarketStr)) {
+            state.outMarketCanRun = 0;
+          } else if (!isBracketBalance(windCtrlStr)) {
+            state.windCtrlCanRun = 0;
+          } else {
+            state.intoMarketCanRun = 1;
+            state.outMarketCanRun = 1;
+            state.windCtrlCanRun = 1;
+            // this.getGeneticTimes();
+            state.geneticModal = true;
+          }
+        }
+      }
     };
     const okGeneticTest = () => {
       //          选择好等级后  进行智能回测
@@ -1543,7 +1761,9 @@ export default {
         duration: 0
       });
     };
-    const changeAndOrNot = () => {};
+    const changeAndOrNot = () => {
+      root.$store.state.andOrNot = "customize";
+    };
     return {
       state,
       changeAndOrNot,

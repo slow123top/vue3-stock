@@ -2,7 +2,8 @@
   <Row type="flex" justify="space-between" style="height: 4rem;border-bottom: 1px solid #e3e8ee">
     <i-col :xs="1" :sm="3" :lg="4" offset="2">
       <router-link to="/portal">
-        <img src="../../assets/img/logo.png" alt="千投量化" />
+      <!-- <img src="../../assets/img/logo.png" alt="千投量化" />-->
+        
       </router-link>
     </i-col>
     <i-col :xs="17" :sm="16" :lg="12" style="padding: 1rem 0">
