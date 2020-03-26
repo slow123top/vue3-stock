@@ -1,7 +1,7 @@
 <template>
   <Row type="flex" justify="center" style="padding: 1rem;margin-bottom: 1rem;margin-top: 3rem">
     <i-col span="4" style="border-right: 1px solid;">
-      <div class="model" @click="$router.push('model')">
+      <div class="model" @click="createModel">
         <div class="icon">
           <Icon type="md-plane" size="48" color="#5b9dde"></Icon>
         </div>
@@ -64,13 +64,13 @@ export default {
     //   router: useRoute()
     // });
     function createModel() {
-      root.$router.push("/model/newModel");
+      root.$router.push("/model/selectStock");
     }
     const myModel = () => {
-      root.$router.push("/model/myModel");
+      root.$router.push("/model/personalModel");
     };
     const modelStorage = () => {
-      root.$router.push("/model/modelstorage");
+      // root.$router.push("/model/modelstorage");
     };
 
     return {

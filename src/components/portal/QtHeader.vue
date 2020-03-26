@@ -63,8 +63,8 @@
       </Row>
     </i-col>
     <i-col :xs="3" :sm="3" :lg="5" style="padding: .5rem 0">
-      <Button type="primary" size="large" style="width: 5rem" @click="login" v-if="!state.isLogin">登录</Button>
-      <Button size="large" style="width: 5rem" @click="register" v-if="!state.isLogin">注册</Button>
+      <Button type="primary" size="large" style="width: 5rem" @click="login">登录</Button>
+      <Button size="large" style="width: 5rem" @click="register">注册</Button>
       <!--我的点数-->
       <Tooltip :content="'昵称：'" placement="right">
         <Dropdown
@@ -95,41 +95,41 @@
 import { reactive } from "@vue/composition-api";
 // import Login from "./user/Login";
 export default {
-  setup() {
+  setup(props,{root}) {
     const state = reactive({
       logining: false,
       nickName: "",
       logiSrc: "../../assets/img/logo.png",
       isLogin: true
     });
-    const createModel = () => {
-      // if (this.$store.state.user.isLogin) {
-      //   switch (params) {
-      //     case "once":
-      //       // this.$router.push("/model");
-      //       break;
-      //     case "intelligent":
-      //       // this.$router.push("/model");
-      //       break;
-      //     case "once-record":
-      //       // this.$router.push("/model/history");
-      //       break;
-      //     case "intelligent-record":
-      //       // this.$router.push("/model/genetictest");
-      //       break;
-      //     default:
-      //       break;
-      //   }
-      // } else {
-      //   //
-      // }
+    const createModel = (params) => {
+      if (root.$store.state.user.isLogin) {
+        switch (params) {
+          case "once":
+            root.$router.push("/model/selectStock");
+            break;
+          case "intelligent":
+            root.$router.push("/model/selectStock");
+            break;
+          case "once-record":
+            // root.$router.push("/model/history");
+            break;
+          case "intelligent-record":
+            // this.$router.push("/model/genetictest");
+            break;
+          default:
+            break;
+        }
+      } else {
+        //
+      }
     };
     const modelStorage = () => {
       // this.$router.push("/model/modelstorage");
     };
     const myModel = () => {
       // if (this.$store.state.user.isLogin) {
-      //   this.$router.push("/model/myModel");
+        root.$router.push("/model/personalModel");
       // } else {
       //   /*  */
       // }
@@ -144,15 +144,15 @@ export default {
     };
     const login = () => {
       //        this.logining = true;
-      this.$router.push("/login");
+      root.$router.push("/login");
     };
     const register = () => {
-      this.$router.push("/register");
+      root.$router.push("/register");
     };
     const useModel = name => {
       switch (name) {
         case "my-model":
-          this.$router.push("/model/myModel");
+          this.$router.push("/model/personalModel");
           break;
         case "model-storage":
           this.$router.push("/model/modelstorage");
@@ -164,26 +164,26 @@ export default {
     const selectReacharge = name => {
       switch (name) {
         case "point":
-          this.$router.push("/personalInfo/recharge");
+          root.$router.push("/personalInfo/recharge");
           break;
         case "card":
-          this.$router.push("/personalInfo/buycard");
+          root.$router.push("/personalInfo/buycard");
           break;
       }
     };
     const selectMenu = name => {
       switch (name) {
         case "personal-main":
-          this.$router.push("/personalInfo");
+          root.$router.push("/personalInfo");
           break;
         case "personal-model":
-          this.$router.push("/model/myModel");
+          root.$router.push("/model/personalModel");
           break;
         case "recharge":
-          this.$router.push("/personalInfo/recharge");
+          root.$router.push("/personalInfo/recharge");
           break;
         case "buycard":
-          this.$router.push("/personalInfo/buycard");
+          root.$router.push("/personalInfo/buycard");
           break;
         case "logout":
           //            注销
@@ -204,16 +204,16 @@ export default {
     const selectHelp = name => {
       switch (name) {
         case "question":
-          // this.$router.push("/help");
+          root.$router.push("/help");
           break;
         case "guide":
-          // this.$router.push("/help/guide");
+          root.$router.push("/help/guide");
           break;
         case "intelligent":
-          // this.$router.push("/help/geneticdoc");
+          root.$router.push("/help/geneticdoc");
           break;
         case "about":
-          // this.$router.push("/help/about");
+          root.$router.push("/help/about");
           break;
       }
     };

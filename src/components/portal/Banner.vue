@@ -78,31 +78,23 @@
 <script>
 import { reactive } from "@vue/composition-api";
 export default {
-  setup() {
+  setup(props, { root }) {
     const state = reactive({
       value: 0
     });
     const createModel = () => {
       //            创建模型
-      // if (this.$store.state.user.isLogin) {
-      //   this.$router.push("/model");
-      // } else {
-      //   this.$router.push("/login");
-      // }
+      root.$router.push("/model/selectStock");
     };
     const getMyModels = () => {
-      // if (this.$store.state.user.isLogin) {
-      //   this.$router.push("/model/myModel");
-      // } else {
-      //   this.$router.push("/login");
-      // }
+      root.$router.push("/model/personalModel");
     };
     const guide = () => {
-      this.$router.push("/help/guide");
+      // root.$router.push("/help/guide");
     };
     //      查看更多智能回测
     const getMore = () => {
-      this.$router.push("/help/geneticdoc");
+      // root.$router.push("/help/geneticdoc");
     };
     return {
       state,

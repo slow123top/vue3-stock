@@ -402,6 +402,7 @@
                   <i-button
                     v-if="(item.className===''&&item.locked)||(item.className&&!item.params.length&&!item.radios.length&&item.locked)"
                     type="text"
+                    shape="circle"
                     icon="ios-lock"
                     style="float: right;color: #000000"
                     @click="unlockIndicator(indexs)"

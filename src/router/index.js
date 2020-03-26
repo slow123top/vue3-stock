@@ -12,17 +12,17 @@ import Route from 'vue-router'
 // //门户
 import Portal from '../components/portal/Portal'
 // //登录和注册
-// import Login from '../components/user/Login'
-// import Register from '../components/user/Register'
-// import ForgetPasswd from '../components/user/ForgetPasswd'
+import Login from '../components/user/Login'
+import Register from '../components/user/Register'
+import ForgetPasswd from '../components/user/ForgetPasswd'
 // import NotFound from '../components/NotFound'
 
 //模型模块
 import Model from '../components/stock/Stock'
-import NewModel from '../components/stock/StockParameter'
+import SelectStock from '../components/stock/StockParameter'
 
 // import Result from '../components/stock/Result'
-// import MyModel from '../components/stock/MyModel'
+import PersonalModel from '../components/model/PersonalModel'
 // import Track from '../components/stock/Track'
 // import History from '../components/stock/History'
 // import ModelStorage from '../components/stock/ModelStroage.vue'
@@ -30,23 +30,23 @@ import NewModel from '../components/stock/StockParameter'
 // import GeneticTest from '../components/stock/GeneticTest'
 
 //个人信息
-// import PersonalInfo from '../components/personalinfo/PersonalInfo'
-// import Recharge from '../components/personalinfo/Recharge'
-// import BuyCard from '../components/personalinfo/BuyCard'
-// import MyWallet from '../components/personalinfo/MyWallet'
-// import BuyCardRecord from '../components/personalinfo/BuyCardRecord'
-// import RechargeRecord from '../components/personalinfo/RechargeRecord'
-// import DeducPoints from '../components/personalinfo/DeducPoints'
-// import UpdatePasswd from '../components/personalinfo/UpdatePasswd'
-// import Phone from '../components/personalinfo/Phone'
-// import Email from '../components/personalinfo/Email'
+import PersonalInfo from '../components/manage/PersonalInfo'
+import Recharge from '../components/manage/Recharge'
+import BuyCard from '../components/manage/BuyCard'
+import MyWallet from '../components/manage/MyWallet'
+import BuyCardRecord from '../components/manage/BuyCardRecord'
+import RechargeRecord from '../components/manage/RechargeRecord'
+import DeducPoints from '../components/manage/DeducPoints'
+import UpdatePasswd from '../components/manage/UpdatePasswd'
+import Phone from '../components/manage/Phone'
+import Email from '../components/manage/Email'
 //说明文档模块
-// import Document from '../components/document/Document'
-// import CompanyState from '../components/document/CompanyState'
-// import Question from '../components/document/Question'
-// import Guide from '../components/document/Guide'
-// import About from '../components/document/About'
-// import GeneticDoc from '../components/document/GeneticDoc'
+import Document from '../components/about/Document'
+import CompanyState from '../components/about/CompanyState'
+import Question from '../components/about/Question'
+import Guide from '../components/about/Guide'
+import About from '../components/about/About'
+import GeneticDoc from '../components/about/GeneticDoc'
 Vue.use(Route)
 export const router = new Route({
   //创建路由
@@ -70,11 +70,120 @@ export const router = new Route({
       component: Model,
       children: [{
         //创建新模型
-        name: 'newModel',
-        path: 'newModel',
-        component: NewModel
-      }]
-    }
+        name: 'selectStock',
+        path: 'selectStock',
+        component: SelectStock
+      },
+      {
+        //我的模型
+        name: 'personalModel',
+        path: 'personalModel',
+        component: PersonalModel
+      }
+      ]
+    },
+    {
+      path: '/help',
+      component: Document,
+      children: [
+        {
+          name: 'companystate',
+          path: 'companystate',
+          component: CompanyState
+        },
+        {
+          name: 'question',
+          path: 'question',
+          component: Question
+        }, {
+          path: '/help',
+          redirect: '/help/question'
+        }, {
+          path: 'guide',
+          component: Guide
+        },
+        {
+          path: 'about',
+          component: About
+        },
+        {
+          path: 'geneticdoc',
+          component: GeneticDoc
+        }
+        // {
+        //   name: 'exemption',
+        //   path: 'exemption',
+        //   component: Mianze
+        // }
+      ]
+    },
+    // 个人信息
+    {
+      name: 'personalInfo',
+      path: '/personalInfo',
+      component: PersonalInfo,
+      children: [
+        {
+          //修改密码
+          path: 'updatepasswd',
+          component: UpdatePasswd
+        },
+        {
+          //手机设置
+          path: 'phone',
+          component: Phone
+        },
+        {
+          //邮箱设置
+          path: 'email',
+          component: Email
+        },
+        {
+          //充值
+          path: 'recharge',
+          component: Recharge
+        },
+        {
+          path: 'buycard',
+          component: BuyCard
+        }, {
+          path: 'mywallet',
+          component: MyWallet
+        },
+        {
+          path: '/personalInfo',
+          redirect: '/personalInfo/mywallet'
+        },
+        {
+          path: 'buycardrecord',
+          component: BuyCardRecord
+        },
+        {
+          path: 'rechargerecord',
+          component: RechargeRecord
+        },
+        {
+          path: 'deducpoints',
+          component: DeducPoints
+        }
+      ]
+    },
+    //忘记密码
+    {
+      path: '/forgetpassword',
+      name: 'forgetPassword',
+      component: ForgetPasswd
+    },
+    {
+      name: 'login',
+      path: '/login',
+      component: Login
+    },
+    {
+      name: 'register',
+      path: '/register',
+      component: Register
+    },
   ]
 
 })
@@ -90,23 +199,7 @@ export const router = new Route({
 // }
 
 
-    // {
-    //   name: 'login',
-    //   path: '/login',
-    //   component: Login,
-    //   beforeEnter: (to, from, next) => {
-    //     if (store.state.user.isLogin) {
-    //       next(false);
-    //     } else {
-    //       next();
-    //     }
-    //   }
-    // },
-    // {
-    //   name: 'register',
-    //   path: '/register',
-    //   component: Register
-    // },
+
     // {
     //   path: '/home',
     //   name: 'home',
@@ -116,55 +209,12 @@ export const router = new Route({
     //   path: '/notfound',
     //   component: NotFound
     // },
-    // {
-    //   path: '/help',
-    //   component: Document,
-    //   children: [
-    //     {
-    //       name: 'companystate',
-    //       path: 'companystate',
-    //       component: CompanyState
-    //     },
-    //     {
-    //       name: 'question',
-    //       path: 'question',
-    //       component: Question
-    //     }, {
-    //       path: '/help',
-    //       redirect: '/help/question'
-    //     }, {
-    //       path: 'guide',
-    //       component: Guide
-    //     },
-    //     {
-    //       path: 'about',
-    //       component: About
-    //     },
-    //     {
-    //       path: 'geneticdoc',
-    //       component: GeneticDoc
-    //     }
-    //     // {
-    //     //   name: 'exemption',
-    //     //   path: 'exemption',
-    //     //   component: Mianze
-    //     // }
-    //   ]
-    // },
-    // //忘记密码
-    // {
-    //   path: '/forgetpassword',
-    //   name: 'forgetPassword',
-    //   component: ForgetPasswd
-    // },
+
+
     // // 我的模型 创建模型  历史回测
 
     // }
-    // {
-    //     //我的模型
-    //     path: 'myModel',
-    //     component: MyModel
-    //   },
+
     //     {
     //       path: 'modelstorage',
     //       component: ModelStorage
@@ -213,54 +263,5 @@ export const router = new Route({
     //   component: Official
     // },
     // //个人信息
-    // {
-    //   name: 'personalInfo',
-    //   path: '/personalInfo',
-    //   component: PersonalInfo,
-    //   children: [
-    //     {
-    //       //修改密码
-    //       path: 'updatepasswd',
-    //       component: UpdatePasswd
-    //     },
-    //     {
-    //       //手机设置
-    //       path: 'phone',
-    //       component: Phone
-    //     },
-    //     {
-    //       //邮箱设置
-    //       path: 'email',
-    //       component: Email
-    //     },
-    //     {
-    //       //充值
-    //       path: 'recharge',
-    //       component: Recharge
-    //     },
-    //     {
-    //       path: 'buycard',
-    //       component: BuyCard
-    //     }, {
-    //       path: 'mywallet',
-    //       component: MyWallet
-    //     },
-    //     {
-    //       path: '/personalInfo',
-    //       redirect: '/personalInfo/mywallet'
-    //     },
-    //     {
-    //       path: 'buycardrecord',
-    //       component: BuyCardRecord
-    //     },
-    //     {
-    //       path: 'rechargerecord',
-    //       component: RechargeRecord
-    //     },
-    //     {
-    //       path: 'deducpoints',
-    //       component: DeducPoints
-    //     }
-    //   ]
-    // }  
+
 
